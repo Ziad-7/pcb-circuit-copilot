@@ -39,6 +39,34 @@ COMPONENT_KNOWLEDGE = [
         "color": (50, 220, 220),
         "typical_bbox": [0.42, 0.17, 0.80, 0.33],
         "desc": "Electrolytic Aluminum Bulk Filter Capacitor (Polarized)"
+    },
+    {
+        "class": "LED_Indicator_Diode",
+        "keywords": ["led", "diode", "light"],
+        "color": (0, 0, 255),
+        "typical_bbox": [0.20, 0.40, 0.35, 0.55],
+        "desc": "5mm Through-hole Light Emitting Diode (Anode/Cathode polarized)"
+    },
+    {
+        "class": "Current_Limiting_Resistor",
+        "keywords": ["resistor", "ohm", "axial"],
+        "color": (210, 180, 140),
+        "typical_bbox": [0.30, 0.50, 0.45, 0.60],
+        "desc": "Carbon Film Axial Resistor (Current Limiting / Pull-up)"
+    },
+    {
+        "class": "L298N_Motor_Driver",
+        "keywords": ["motor", "l298n", "driver", "bridge"],
+        "color": (255, 50, 50),
+        "typical_bbox": [0.35, 0.30, 0.75, 0.70],
+        "desc": "L298N Dual Full-Bridge Motor Driver Module"
+    },
+    {
+        "class": "Breadboard_Solderless",
+        "keywords": ["breadboard", "prototyping", "board"],
+        "color": (200, 200, 200),
+        "typical_bbox": [0.10, 0.10, 0.90, 0.90],
+        "desc": "Solderless Prototyping Breadboard with Dual Power Rails"
     }
 ]
 
