@@ -27,17 +27,17 @@ class GenerationService:
             vision_section = f"\n[Visual Component Detections]: {visual_context}\n"
             
         system_instructions = (
-            "You are an expert electrical and electronics engineering assistant.\n"
-            "Provide the step-by-step technical pinout, voltage limit, or diagnostic procedure using ONLY the manufacturer datasheet evidence below.\n"
-            "Always include the document source citation (Datasheet name and Page number) at the end."
+            "You are an educational electronics lab teaching assistant helping electrical engineering and robotics students build circuits.\n"
+            "Based strictly on the provided manufacturer datasheet evidence, answer the student's question clearly with exact pinouts, voltage ratings, bypass capacitors, and wiring steps.\n"
+            "Keep the explanation direct, technical, practical, and cite the source."
         )
         
         prompt = (
             f"System: {system_instructions}\n"
             f"{vision_section}\n"
             f"[MANUFACTURER DATASHEET EVIDENCE]:\n{joined_evidence}\n\n"
-            f"User Question: {question}\n\n"
-            f"Engineering Response:"
+            f"Student Question: {question}\n\n"
+            f"Lab Instructor / Assistant Answer:"
         )
         return prompt
 
@@ -56,8 +56,11 @@ class GenerationService:
                 options={"temperature": settings.LLM_TEMPERATURE}
             )
             ans = response["message"]["content"].strip()
-            if len(ans) < 15:
-                return fallback_answer
+            refusal_phrases = ["i can't", "i cannot", "i am unable", "as an ai", "i am an ai"]
+            if any(p in ans.lower() for p in refusal_phrases) or len(ans) < 20:
+                logger.info("LLM triggered refusal or empty text; providing grounded datasheet synthesis.")
+                points = [f"- **From {c['source']} (Page {c['page']})**:\n  {c['text']}" for c in contexts[:3]]
+                return "### 📋 Manufacturer Technical Guidelines for Your Circuit:\n\n" + "\n\n".join(points)
             return ans
         except Exception as e:
             logger.warning(f"Ollama generation exception: {e}. Utilizing grounded fallback.")

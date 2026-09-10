@@ -26,11 +26,12 @@ def handle_query(payload: QueryRequest):
     # 1. Vision component detection
     visual_context, detected_items, annotated_path = detect_pcb_components(payload.image_name)
     
-    # 2. Enrich query with detected component names
+    # 2. Enrich query with detected component names (if specific)
     search_query = payload.question
     if detected_items:
-        comp_names = " ".join([d["class_name"] for d in detected_items[:2]])
-        search_query = f"{comp_names} {payload.question}"
+        specific_comps = [d["class_name"] for d in detected_items[:2] if not d["class_name"].startswith("Electronic_Component_")]
+        if specific_comps:
+            search_query = f"{' '.join(specific_comps)} {payload.question}"
         
     # 3. Vector retrieval
     contexts = retrieval_service.retrieve(search_query)

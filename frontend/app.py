@@ -114,36 +114,36 @@ with st.sidebar:
 st.markdown('<div class="main-header">⚡ PCB COMPONENT & CIRCUIT COPILOT</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Automated Computer Vision Component Detection & Official Datasheet RAG Diagnostic System</div>', unsafe_allow_html=True)
 
-# Quick Preset Engineering Questions
-st.markdown("##### 🔍 Quick Troubleshooting Presets:")
+# Quick Preset Engineering & Student Questions
+st.markdown("##### 🔍 Quick Presets for Students & Lab Builders:")
 col1, col2, col3, col4 = st.columns(4)
 
 preset_q = None
 with col1:
-    if st.button("LM7805 Voltage & Caps"):
-        preset_q = "What is the maximum input voltage for the LM7805 regulator and what bypass capacitors are required?"
+    if st.button("🔌 Arduino 5V Regulator Setup"):
+        preset_q = "How do I connect this LM7805 regulator to power my Arduino safely, and what are its pinout and capacitors?"
         selected_image_name = "lm7805_power_supply.jpg"
 
 with col2:
-    if st.button("ATmega328P I2C & Current"):
-        preset_q = "What is the maximum DC current per I/O pin on the ATmega328P and which pins are used for I2C?"
+    if st.button("⚠️ Arduino Uno Safe Current & I2C"):
+        preset_q = "What is the maximum DC current an Arduino Uno (ATmega328P) pin can safely handle, and which pins are used for I2C?"
         selected_image_name = "arduino_uno_atmega328p.jpg"
 
 with col3:
-    if st.button("ESP32 Wi-Fi Brownouts"):
-        preset_q = "What causes the Brownout detector reset error on an ESP32 and what is its operating voltage?"
+    if st.button("🔥 Overheating & Brownouts"):
+        preset_q = "Why is my voltage regulator or ESP32 getting very hot or restarting with a brownout error, and how do I fix it?"
         selected_image_name = "esp32_dev_board.jpg"
 
 with col4:
-    if st.button("NE555 Astable Timing"):
-        preset_q = "What is the formula for oscillation frequency of the NE555 timer and what does Pin 4 do?"
+    if st.button("⏱️ NE555 Timer & Flasher Pinout"):
+        preset_q = "What are the 8 pins of the NE555 timer, and how do I wire it in astable mode for a flashing LED circuit?"
         selected_image_name = "ne555_timer_board.jpg"
 
 # Query Input
 question_input = st.text_input(
-    "Ask any technical question about this circuit board, IC pinouts, or failure modes:",
+    "Ask any question about your circuit, component pinouts, Arduino wiring, or troubleshooting:",
     value=preset_q if preset_q else "",
-    placeholder="e.g. What is the pinout of this IC and what happens if input exceeds 15V?"
+    placeholder="e.g. How do I connect this to an Arduino? Which pin is ground? Why is it getting hot?"
 )
 
 if st.button("Analyze Circuit & Consult Datasheets", type="primary"):
