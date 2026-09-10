@@ -67,6 +67,76 @@ COMPONENT_KNOWLEDGE = [
         "color": (200, 200, 200),
         "typical_bbox": [0.10, 0.10, 0.90, 0.90],
         "desc": "Solderless Prototyping Breadboard with Dual Power Rails"
+    },
+    {
+        "class": "HC_SR04_Ultrasonic_Sensor",
+        "keywords": ["hc-sr04", "hc_sr04", "ultrasonic", "sonar", "distance"],
+        "color": (0, 255, 128),
+        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
+        "desc": "HC-SR04 Ultrasonic Distance Sensor (Trig/Echo, 2-400cm range)"
+    },
+    {
+        "class": "SG90_Micro_Servo",
+        "keywords": ["sg90", "servo", "tower_pro", "tower pro"],
+        "color": (255, 165, 0),
+        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
+        "desc": "Tower Pro SG90 Micro Servo Motor (0-180 degrees, 3-wire PWM)"
+    },
+    {
+        "class": "DHT11_Temp_Humidity_Sensor",
+        "keywords": ["dht11", "dht22", "dht", "humidity", "temperature"],
+        "color": (100, 200, 255),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "DHT11/DHT22 Digital Temperature & Humidity Sensor Module"
+    },
+    {
+        "class": "PIR_Motion_Sensor",
+        "keywords": ["pir", "motion", "hc-sr501", "infrared"],
+        "color": (255, 200, 50),
+        "typical_bbox": [0.25, 0.20, 0.75, 0.80],
+        "desc": "HC-SR501 PIR Passive Infrared Motion Detection Sensor"
+    },
+    {
+        "class": "Relay_Module_5V",
+        "keywords": ["relay", "switch", "module"],
+        "color": (50, 50, 255),
+        "typical_bbox": [0.20, 0.20, 0.80, 0.80],
+        "desc": "5V Single/Multi-Channel Relay Module with Optocoupler Isolation"
+    },
+    {
+        "class": "LCD_16x2_Display",
+        "keywords": ["lcd", "display", "16x2", "hd44780", "i2c"],
+        "color": (0, 128, 255),
+        "typical_bbox": [0.15, 0.30, 0.85, 0.70],
+        "desc": "16x2 Character LCD Display (HD44780 with I2C Backpack)"
+    },
+    {
+        "class": "Buzzer_Piezo",
+        "keywords": ["buzzer", "piezo", "speaker", "tone"],
+        "color": (128, 128, 0),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "Piezoelectric Buzzer Module (Active or Passive)"
+    },
+    {
+        "class": "Potentiometer_Variable_Resistor",
+        "keywords": ["potentiometer", "pot", "knob", "trimpot", "variable"],
+        "color": (180, 130, 70),
+        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
+        "desc": "Rotary Potentiometer / Trimpot (Variable Resistor, 10K typical)"
+    },
+    {
+        "class": "Photoresistor_LDR",
+        "keywords": ["ldr", "photoresistor", "cds", "photo"],
+        "color": (230, 200, 100),
+        "typical_bbox": [0.35, 0.40, 0.65, 0.60],
+        "desc": "Light Dependent Resistor (CdS Photoresistor / LDR)"
+    },
+    {
+        "class": "IR_Obstacle_Sensor",
+        "keywords": ["ir", "obstacle", "infrared", "fc-51", "tcrt"],
+        "color": (200, 50, 50),
+        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
+        "desc": "IR Infrared Obstacle Avoidance Sensor (FC-51 / TCRT5000)"
     }
 ]
 
