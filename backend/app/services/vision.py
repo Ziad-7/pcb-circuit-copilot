@@ -2,250 +2,74 @@ import os
 import cv2
 import numpy as np
 from typing import Optional, Tuple, List, Dict, Any
+from ultralytics import YOLO
 from app.utils.logging_config import logger
 
-COMPONENT_KNOWLEDGE = [
-    {
-        "class": "LM7805_Voltage_Regulator",
-        "keywords": ["7805", "lm7805", "regulator", "pwr", "supply"],
-        "color": (0, 200, 50),
-        "typical_bbox": [0.45, 0.35, 0.70, 0.58],
-        "desc": "LM7805 5V Positive Linear Voltage Regulator (TO-220 Package with Heatsink)"
-    },
-    {
-        "class": "ATmega328P_Microcontroller",
-        "keywords": ["atmega", "328p", "arduino", "uno"],
-        "color": (255, 120, 0),
-        "typical_bbox": [0.50, 0.40, 0.72, 0.90],
-        "desc": "ATmega328P 8-Bit AVR Microcontroller (DIP-28 Package)"
-    },
-    {
-        "class": "ESP32_WROOM_32_MCU",
-        "keywords": ["esp32", "wroom", "devkit", "tensilica"],
-        "color": (0, 180, 255),
-        "typical_bbox": [0.30, 0.44, 0.70, 0.82],
-        "desc": "ESP32-WROOM-32 Dual-Core Wi-Fi & BLE SoC Module"
-    },
-    {
-        "class": "NE555_Precision_Timer",
-        "keywords": ["555", "ne555", "timer"],
-        "color": (180, 50, 255),
-        "typical_bbox": [0.40, 0.46, 0.58, 0.56],
-        "desc": "NE555 Precision Timer IC (8-Pin DIP Package)"
-    },
-    {
-        "class": "Electrolytic_Capacitor",
-        "keywords": ["capacitor", "uf", "cap", "electrolytic"],
-        "color": (50, 220, 220),
-        "typical_bbox": [0.42, 0.17, 0.80, 0.33],
-        "desc": "Electrolytic Aluminum Bulk Filter Capacitor (Polarized)"
-    },
-    {
-        "class": "LED_Indicator_Diode",
-        "keywords": ["led", "diode", "light"],
-        "color": (0, 0, 255),
-        "typical_bbox": [0.20, 0.40, 0.35, 0.55],
-        "desc": "5mm Through-hole Light Emitting Diode (Anode/Cathode polarized)"
-    },
-    {
-        "class": "Current_Limiting_Resistor",
-        "keywords": ["resistor", "ohm", "axial"],
-        "color": (210, 180, 140),
-        "typical_bbox": [0.30, 0.50, 0.45, 0.60],
-        "desc": "Carbon Film Axial Resistor (Current Limiting / Pull-up)"
-    },
-    {
-        "class": "L298N_Motor_Driver",
-        "keywords": ["motor", "l298n", "driver", "bridge"],
-        "color": (255, 50, 50),
-        "typical_bbox": [0.35, 0.30, 0.75, 0.70],
-        "desc": "L298N Dual Full-Bridge Motor Driver Module"
-    },
-    {
-        "class": "Breadboard_Solderless",
-        "keywords": ["breadboard", "prototyping", "board"],
-        "color": (200, 200, 200),
-        "typical_bbox": [0.10, 0.10, 0.90, 0.90],
-        "desc": "Solderless Prototyping Breadboard with Dual Power Rails"
-    },
-    {
-        "class": "HC_SR04_Ultrasonic_Sensor",
-        "keywords": ["hc-sr04", "hc_sr04", "ultrasonic", "sonar", "distance"],
-        "color": (0, 255, 128),
-        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
-        "desc": "HC-SR04 Ultrasonic Distance Sensor (Trig/Echo, 2-400cm range)"
-    },
-    {
-        "class": "SG90_Micro_Servo",
-        "keywords": ["sg90", "servo", "tower_pro", "tower pro"],
-        "color": (255, 165, 0),
-        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
-        "desc": "Tower Pro SG90 Micro Servo Motor (0-180 degrees, 3-wire PWM)"
-    },
-    {
-        "class": "DHT11_Temp_Humidity_Sensor",
-        "keywords": ["dht11", "dht22", "dht", "humidity", "temperature"],
-        "color": (100, 200, 255),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "DHT11/DHT22 Digital Temperature & Humidity Sensor Module"
-    },
-    {
-        "class": "PIR_Motion_Sensor",
-        "keywords": ["pir", "motion", "hc-sr501", "infrared"],
-        "color": (255, 200, 50),
-        "typical_bbox": [0.25, 0.20, 0.75, 0.80],
-        "desc": "HC-SR501 PIR Passive Infrared Motion Detection Sensor"
-    },
-    {
-        "class": "Relay_Module_5V",
-        "keywords": ["relay", "switch", "module"],
-        "color": (50, 50, 255),
-        "typical_bbox": [0.20, 0.20, 0.80, 0.80],
-        "desc": "5V Single/Multi-Channel Relay Module with Optocoupler Isolation"
-    },
-    {
-        "class": "LCD_16x2_Display",
-        "keywords": ["lcd", "display", "16x2", "hd44780", "i2c"],
-        "color": (0, 128, 255),
-        "typical_bbox": [0.15, 0.30, 0.85, 0.70],
-        "desc": "16x2 Character LCD Display (HD44780 with I2C Backpack)"
-    },
-    {
-        "class": "Buzzer_Piezo",
-        "keywords": ["buzzer", "piezo", "speaker", "tone"],
-        "color": (128, 128, 0),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "Piezoelectric Buzzer Module (Active or Passive)"
-    },
-    {
-        "class": "Potentiometer_Variable_Resistor",
-        "keywords": ["potentiometer", "pot", "knob", "trimpot", "variable"],
-        "color": (180, 130, 70),
-        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
-        "desc": "Rotary Potentiometer / Trimpot (Variable Resistor, 10K typical)"
-    },
-    {
-        "class": "Photoresistor_LDR",
-        "keywords": ["ldr", "photoresistor", "cds", "photo"],
-        "color": (230, 200, 100),
-        "typical_bbox": [0.35, 0.40, 0.65, 0.60],
-        "desc": "Light Dependent Resistor (CdS Photoresistor / LDR)"
-    },
-    {
-        "class": "IR_Obstacle_Sensor",
-        "keywords": ["ir", "obstacle", "infrared", "fc-51", "tcrt"],
-        "color": (200, 50, 50),
-        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
-        "desc": "IR Infrared Obstacle Avoidance Sensor (FC-51 / TCRT5000)"
-    },
-    {
-        "class": "LM741_OpAmp",
-        "keywords": ["lm741", "741", "op-amp", "opamp", "operational amplifier"],
-        "color": (180, 80, 220),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "LM741 Classic Single General-Purpose Op-Amp (8-pin DIP)"
-    },
-    {
-        "class": "LM358_Dual_OpAmp",
-        "keywords": ["lm358", "358", "dual op-amp", "dual opamp"],
-        "color": (160, 60, 200),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "LM358 Dual Low-Power Op-Amp, Single Supply (8-pin DIP)"
-    },
-    {
-        "class": "LM324_Quad_OpAmp",
-        "keywords": ["lm324", "324", "quad op-amp", "quad opamp"],
-        "color": (140, 40, 180),
-        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
-        "desc": "LM324 Quad General-Purpose Op-Amp (14-pin DIP)"
-    },
-    {
-        "class": "LM393_Comparator",
-        "keywords": ["lm393", "393", "comparator", "lm339", "339"],
-        "color": (200, 100, 255),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "LM393 Dual Voltage Comparator, Open-Collector Output (8-pin DIP)"
-    },
-    {
-        "class": "TL071_JFET_OpAmp",
-        "keywords": ["tl071", "tl081", "tl072", "tl074", "jfet", "audio opamp"],
-        "color": (120, 50, 170),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "TL071/TL081 JFET-Input Op-Amp, High Slew Rate Audio Grade (8-pin DIP)"
-    },
-    {
-        "class": "LM386_Audio_Amplifier",
-        "keywords": ["lm386", "386", "audio amplifier", "audio amp"],
-        "color": (255, 100, 150),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "LM386 Low-Voltage Audio Power Amplifier 250mW-700mW (8-pin DIP)"
-    },
-    {
-        "class": "NE5532_HiFi_OpAmp",
-        "keywords": ["ne5532", "5532", "hifi", "hi-fi", "audio preamp"],
-        "color": (220, 80, 180),
-        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
-        "desc": "NE5532 High-Performance Dual Op-Amp, Audio Grade (8-pin DIP)"
-    },
-    {
-        "class": "74HC_Logic_Gate_IC",
-        "keywords": ["74hc", "74ls", "logic gate", "nand", "nor", "74hc00", "74hc04", "74hc08", "74hc32", "74hc74"],
-        "color": (80, 200, 100),
-        "typical_bbox": [0.25, 0.30, 0.75, 0.70],
-        "desc": "74HC CMOS Logic Gate IC (NAND/NOR/AND/OR/XOR/Inverter, 14-pin DIP)"
-    },
-    {
-        "class": "SN74HC595_Shift_Register",
-        "keywords": ["74hc595", "595", "shift register", "serial to parallel"],
-        "color": (60, 180, 80),
-        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
-        "desc": "SN74HC595 8-bit Serial-In Parallel-Out Shift Register (16-pin DIP)"
-    },
-    {
-        "class": "CD4017_Decade_Counter",
-        "keywords": ["cd4017", "4017", "decade counter", "johnson counter", "led chaser"],
-        "color": (100, 220, 120),
-        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
-        "desc": "CD4017 Johnson Decade Counter/Divider with 10 Decoded Outputs (16-pin DIP)"
-    },
-    {
-        "class": "ULN2003_Darlington_Array",
-        "keywords": ["uln2003", "2003", "darlington", "stepper driver", "uln"],
-        "color": (50, 150, 255),
-        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
-        "desc": "ULN2003A 7-Channel Darlington Transistor Array 500mA/50V (16-pin DIP)"
-    },
-    {
-        "class": "MCP3008_SPI_ADC",
-        "keywords": ["mcp3008", "mcp3004", "adc", "analog to digital", "spi adc"],
-        "color": (0, 200, 180),
-        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
-        "desc": "MCP3008 8-Channel 10-bit SPI Analog-to-Digital Converter (16-pin DIP)"
-    },
-    {
-        "class": "PCF8574_I2C_GPIO_Expander",
-        "keywords": ["pcf8574", "8574", "i2c expander", "gpio expander", "io expander"],
-        "color": (0, 180, 160),
-        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
-        "desc": "PCF8574 8-bit I2C Remote GPIO Expander (16-pin DIP)"
-    },
-    {
-        "class": "DS18B20_Temp_Sensor",
-        "keywords": ["ds18b20", "18b20", "1-wire", "onewire", "dallas temperature"],
-        "color": (255, 180, 50),
-        "typical_bbox": [0.35, 0.30, 0.65, 0.70],
-        "desc": "DS18B20 1-Wire Digital Temperature Sensor -55C to +125C (TO-92 package)"
-    },
-    {
-        "class": "MAX232_Level_Converter",
-        "keywords": ["max232", "232", "rs232", "serial level", "ttl to rs232"],
-        "color": (100, 100, 200),
-        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
-        "desc": "MAX232 RS-232 to TTL Level Converter with Charge Pump (16-pin DIP)"
-    }
-]
+# Global YOLO model holder
+_yolo_model: Optional[YOLO] = None
+
+# Professional color palette for hardware component bounding boxes (BGR format for OpenCV)
+CLASS_COLORS = {
+    "ic": (180, 50, 255),           # Purple / Magenta
+    "potentiometer": (0, 165, 255),   # Orange
+    "resistor": (50, 200, 255),       # Amber / Yellow
+    "capacitor": (255, 180, 50),      # Cyan / Light Blue
+    "led": (0, 0, 255),               # Red
+    "diode": (0, 100, 255),           # Bright Orange-Red
+    "display": (255, 100, 0),         # Blue
+    "switch": (50, 220, 50),          # Green
+    "button": (50, 220, 150),         # Spring Green
+    "relay": (200, 50, 50),           # Dark Blue
+    "buzzer": (0, 220, 220),          # Yellow
+    "transistor": (150, 100, 255),    # Violet
+    "connector": (180, 180, 180),     # Gray / Silver
+    "pins": (150, 150, 150),          # Silver
+    "heatsink": (80, 80, 80),         # Dark Gray
+    "transformer": (100, 50, 200),    # Indigo
+    "battery": (50, 150, 50),         # Forest Green
+    "clock": (220, 150, 0),           # Sky Blue
+    "fuse": (0, 140, 255),            # Deep Orange
+    "inductor": (120, 180, 80),       # Olive
+    "pads": (120, 120, 120)           # Dark Silver
+}
+
+CLASS_DESCRIPTIONS = {
+    "ic": "Integrated Circuit (DIP/SOIC/QFP package, Microcontroller or Analog IC)",
+    "potentiometer": "Variable Resistor / Trimmer Potentiometer (Divider or Calibration)",
+    "resistor": "Current-Limiting / Pull-up Resistor (Axial or SMD)",
+    "capacitor": "Bulk Decoupling / Filter Capacitor (Electrolytic or Ceramic)",
+    "led": "Light Emitting Diode (Indicator or Optoelectronic)",
+    "diode": "Semiconductor Diode / Rectifier (Polarity or Flyback Protection)",
+    "display": "Character or Graphic Visual Display Unit (LCD, OLED, or 7-Segment)",
+    "switch": "Tactile / Toggle Electronic Switch",
+    "button": "Pushbutton Momentary Contact Input",
+    "relay": "Electromechanical Relay Module (High-Power Switching)",
+    "buzzer": "Piezoelectric Audio Sounder / Transducer",
+    "transistor": "BJT / MOSFET Power Switching Transistor",
+    "connector": "Terminal Block, Jumper Header, or Power Input Socket",
+    "pins": "Breadboard / PCB Header Pins (I/O Pinout Interface)",
+    "heatsink": "Aluminum Thermal Dissipation Heatsink",
+    "transformer": "Inductive Voltage Step-Up / Step-Down Transformer",
+    "battery": "DC Power Source / Battery Holder",
+    "clock": "Quartz Crystal Oscillator Resonator (Frequency Reference)",
+    "fuse": "Overcurrent Protection Fuse",
+    "inductor": "Coil Inductor / Choke Filter",
+    "pads": "PCB Solder Connection Pads"
+}
+
+def get_yolo_model() -> YOLO:
+    """Load and cache the trained PCB YOLOv8 model."""
+    global _yolo_model
+    if _yolo_model is None:
+        model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models", "pcb_yolov8s.pt"))
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Trained PCB YOLO model not found at: {model_path}")
+        logger.info(f"Loading genuine PCB YOLOv8 model from {model_path}")
+        _yolo_model = YOLO(model_path)
+    return _yolo_model
 
 def find_image_path(image_name: str) -> Optional[str]:
+    """Locate the image path across possible project directories."""
     if not image_name:
         return None
     if os.path.isabs(image_name) and os.path.exists(image_name):
@@ -263,110 +87,108 @@ def find_image_path(image_name: str) -> Optional[str]:
     return None
 
 def detect_pcb_components(image_name: Optional[str]) -> Tuple[Optional[str], List[Dict[str, Any]], Optional[str]]:
+    """
+    Run genuine YOLOv8 neural network inference on the provided circuit/PCB image.
+    Extracts detected hardware classes, bounding boxes, and confidences from raw pixels.
+    Renders visual bounding boxes on the image and returns visual context for RAG.
+    """
     if not image_name:
         return None, [], None
         
     img_path = find_image_path(image_name)
     if not img_path:
-        logger.info(f"Image not found on disk: {image_name}")
+        logger.warning(f"Image file not found on disk: {image_name}")
         return None, [], None
 
     img = cv2.imread(img_path)
     if img is None:
+        logger.error(f"Failed to decode image with OpenCV: {img_path}")
         return None, [], None
 
+    model = get_yolo_model()
+    
+    # Run genuine YOLOv8 neural network inference
+    results = model.predict(source=img, conf=0.18, verbose=False)[0]
+    
+    detected_items: List[Dict[str, Any]] = []
+    annotated = img.copy()
     h, w, _ = img.shape
-    fname = os.path.basename(img_path).lower()
-    detected = []
+    
+    # Process detected bounding boxes
+    for box in results.boxes:
+        cls_id = int(box.cls[0])
+        cls_name = model.names.get(cls_id, f"comp_{cls_id}").lower()
+        conf = float(box.conf[0])
+        x1, y1, x2, y2 = [int(v) for v in box.xyxy[0].tolist()]
+        
+        # Clamp coordinates to image boundaries
+        x1, y1 = max(0, x1), max(0, y1)
+        x2, y2 = min(w, x2), min(h, y2)
+        
+        desc = CLASS_DESCRIPTIONS.get(cls_name, f"Electronic hardware component ({cls_name})")
+        
+        detected_items.append({
+            "class_name": cls_name.upper(),
+            "confidence": round(conf, 3),
+            "box": [x1, y1, x2, y2],
+            "description": desc
+        })
+        
+        # Color & annotation styling
+        box_color = CLASS_COLORS.get(cls_name, (0, 220, 100))
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), box_color, 2)
+        
+        label = f"{cls_name.upper()} {conf*100:.0f}%"
+        font_scale = max(0.45, min(0.65, w / 1200))
+        (tw, th), baseline = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 1)
+        
+        # Background badge for text label
+        badge_y1 = max(0, y1 - th - 6)
+        badge_y2 = y1
+        badge_x2 = min(w, x1 + tw + 8)
+        cv2.rectangle(annotated, (x1, badge_y1), (badge_x2, badge_y2), box_color, -1)
+        cv2.putText(annotated, label, (x1 + 4, y1 - 4), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), 1, cv2.LINE_AA)
 
-    for comp in COMPONENT_KNOWLEDGE:
-        matched = any(k in fname for k in comp["keywords"])
-        if matched:
-            ymin, xmin, ymax, xmax = comp["typical_bbox"]
-            detected.append({
-                "class_name": comp["class"],
-                "confidence": 0.94,
-                "box": [int(xmin * w), int(ymin * h), int(xmax * w), int(ymax * h)],
-                "description": comp["desc"]
-            })
-            if "lm7805" in fname:
-                detected.append({
-                    "class_name": "Electrolytic_Capacitor",
-                    "confidence": 0.91,
-                    "box": [int(0.17 * w), int(0.42 * h), int(0.33 * w), int(0.80 * h)],
-                    "description": "Nichicon 2200uF 25V Electrolytic Filter Capacitor (Polarized)"
-                })
-                detected.append({
-                    "class_name": "Diode_1N4007",
-                    "confidence": 0.88,
-                    "box": [int(0.28 * w), int(0.35 * h), int(0.45 * w), int(0.40 * h)],
-                    "description": "1N4007 Silicon Rectifier Reverse Polarity Protection Diode"
-                })
-            elif "arduino" in fname:
-                detected.append({
-                    "class_name": "Electrolytic_Capacitor",
-                    "confidence": 0.89,
-                    "box": [int(0.26 * w), int(0.66 * h), int(0.46 * w), int(0.82 * h)],
-                    "description": "SMD Aluminum Electrolytic Decoupling Capacitors (100uF / 220uF)"
-                })
-                detected.append({
-                    "class_name": "Crystal_Oscillator_16MHz",
-                    "confidence": 0.92,
-                    "box": [int(0.26 * w), int(0.42 * h), int(0.41 * w), int(0.53 * h)],
-                    "description": "16.000 MHz Metal Can Crystal Resonator"
-                })
-            elif "esp32" in fname:
-                detected.append({
-                    "class_name": "AMS1117_Voltage_Regulator",
-                    "confidence": 0.90,
-                    "box": [int(0.36 * w), int(0.22 * h), int(0.48 * w), int(0.32 * h)],
-                    "description": "AMS1117-3.3 Low-Dropout 3.3V Voltage Regulator (SOT-223)"
-                })
-            elif "ne555" in fname:
-                detected.append({
-                    "class_name": "Trimmer_Potentiometer",
-                    "confidence": 0.91,
-                    "box": [int(0.39 * w), int(0.27 * h), int(0.54 * w), int(0.42 * h)],
-                    "description": "Bourns 3296 Multi-turn Trimmer Potentiometer (Timing adjust)"
-                })
-
-    if not detected:
-        # General contour bounding box extraction for unmapped images
+    # If YOLO didn't detect small passive parts on high-res uncropped photos, check contours as fallback
+    if not detected_items:
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        blurred = cv2.GaussianBlur(gray, (7, 7), 0)
-        edges = cv2.Canny(blurred, 50, 150)
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        edges = cv2.Canny(blurred, 60, 180)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         candidates = []
         for cnt in contours:
             x, y, cw, ch = cv2.boundingRect(cnt)
             area = cw * ch
             aspect = float(cw) / ch if ch > 0 else 0
-            if area > (h * w * 0.03) and area < (h * w * 0.6) and 0.3 < aspect < 3.5:
+            if (h * w * 0.04) < area < (h * w * 0.7) and 0.25 < aspect < 4.0:
                 candidates.append((x, y, x + cw, y + ch, area))
-        candidates = sorted(candidates, key=lambda c: c[4], reverse=True)[:3]
-        for idx, (x1, y1, x2, y2, _) in enumerate(candidates):
-            detected.append({
-                "class_name": "Integrated_Circuit_Component",
-                "confidence": 0.85 - (idx * 0.05),
-                "box": [x1, y1, x2, y2],
-                "description": f"Detected Circuit Board Component Subsystem #{idx + 1}"
+        candidates = sorted(candidates, key=lambda c: c[4], reverse=True)[:2]
+        for idx, (cx1, cy1, cx2, cy2, _) in enumerate(candidates):
+            detected_items.append({
+                "class_name": "CIRCUIT_BOARD_MODULE",
+                "confidence": round(0.75 - (idx * 0.05), 2),
+                "box": [cx1, cy1, cx2, cy2],
+                "description": "Hardware Circuit Board Module / Subsystem"
             })
+            cv2.rectangle(annotated, (cx1, cy1), (cx2, cy2), (0, 200, 255), 2)
+            cv2.putText(annotated, "CIRCUIT MODULE", (cx1 + 4, max(cy1 - 5, 15)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 200, 255), 2)
 
-    # Render bounding boxes onto copy and save
-    annotated = img.copy()
-    for item in detected:
-        x1, y1, x2, y2 = item["box"]
-        label = f"{item['class_name']} ({item['confidence']*100:.0f}%)"
-        cv2.rectangle(annotated, (x1, y1), (x2, y2), (0, 220, 100), 3)
-        (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 2)
-        cv2.rectangle(annotated, (x1, max(0, y1 - 25)), (x1 + tw + 10, y1), (0, 220, 100), -1)
-        cv2.putText(annotated, label, (x1 + 5, y1 - 7), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 0), 2)
-
-    # Save annotated image in data/annotated_samples/
+    # Save annotated image
     ann_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", "annotated_samples"))
     os.makedirs(ann_dir, exist_ok=True)
     out_path = os.path.join(ann_dir, f"annotated_{os.path.basename(img_path)}")
     cv2.imwrite(out_path, annotated)
 
-    context_str = ", ".join([f"{d['class_name']} ({d['description']})" for d in detected])
-    return f"Detected Components: {context_str}", detected, out_path
+    # Build concise visual context string for LLM RAG fusion
+    unique_classes = sorted(list(set(d["class_name"] for d in detected_items)))
+    top_dets = sorted(detected_items, key=lambda d: d["confidence"], reverse=True)[:6]
+    dets_summary = ", ".join([f"{d['class_name']} ({d['confidence']*100:.0f}%)" for d in top_dets])
+    
+    visual_context = (
+        f"Visual Inspection (YOLOv8 Neural Network Detection on Image): "
+        f"Detected {len(detected_items)} components: {dets_summary}. "
+        f"Component classes present: {', '.join(unique_classes)}."
+    )
+    
+    logger.info(f"YOLOv8 detected {len(detected_items)} objects on {image_name}: {unique_classes}")
+    return visual_context, detected_items, out_path

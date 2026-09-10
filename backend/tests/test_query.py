@@ -40,7 +40,7 @@ def test_query_invalid_input_short_question():
     assert response.status_code == 422
 
 def test_query_with_visual_component_detection():
-    """Verify multimodal input correctly detects PCB component and returns bounding boxes."""
+    """Verify multimodal input correctly runs YOLO neural detection and returns bounding boxes."""
     payload = {
         "question": "What are the required bypass capacitors for this voltage regulator?",
         "image_name": "lm7805_power_supply.jpg"
@@ -50,5 +50,7 @@ def test_query_with_visual_component_detection():
     data = response.json()
     assert len(data["detected_components"]) > 0
     comp_classes = [c["class_name"] for c in data["detected_components"]]
-    assert "LM7805_Voltage_Regulator" in comp_classes
+    # Genuine YOLO classes detected on the power supply PCB
+    assert any(c in comp_classes for c in ["CAPACITOR", "IC", "DIODE", "LED", "CONNECTOR"])
     assert data["annotated_image_path"] is not None
+

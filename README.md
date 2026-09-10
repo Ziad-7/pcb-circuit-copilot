@@ -54,8 +54,8 @@ flowchart TD
 * **Vector Store**: ChromaDB (Cosine similarity HNSW index)
 * **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (384-dimensional dense vectors cached on `E:\hf_cache`)
 * **Language Model**: Local Ollama (`llama3.2:1b`, temperature 0.1)
-* **Computer Vision**: OpenCV + Ultralytics YOLO component detection with bounding box overlay rendering
-* **Frontend**: Streamlit (Dark Engineering Workbench HUD)
+* **Computer Vision (Extended Track)**: Ultralytics YOLOv8 (`pcb_yolov8s.pt` neural network) trained to detect 21 electronic component classes (`IC`, `Resistor`, `Capacitor`, `Potentiometer`, `Diode`, `LED`, `Display`, `Relay`, `Buzzer`, `Switch`, etc.) with bounding box rendering
+* **Frontend**: Streamlit (Modern Glassmorphic Engineering HUD with custom CSS tokens)
 * **Testing**: Pytest, FastAPI TestClient, HTTPX (5/5 passing test suite)
 
 ---
