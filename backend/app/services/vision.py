@@ -137,6 +137,111 @@ COMPONENT_KNOWLEDGE = [
         "color": (200, 50, 50),
         "typical_bbox": [0.30, 0.30, 0.70, 0.70],
         "desc": "IR Infrared Obstacle Avoidance Sensor (FC-51 / TCRT5000)"
+    },
+    {
+        "class": "LM741_OpAmp",
+        "keywords": ["lm741", "741", "op-amp", "opamp", "operational amplifier"],
+        "color": (180, 80, 220),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "LM741 Classic Single General-Purpose Op-Amp (8-pin DIP)"
+    },
+    {
+        "class": "LM358_Dual_OpAmp",
+        "keywords": ["lm358", "358", "dual op-amp", "dual opamp"],
+        "color": (160, 60, 200),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "LM358 Dual Low-Power Op-Amp, Single Supply (8-pin DIP)"
+    },
+    {
+        "class": "LM324_Quad_OpAmp",
+        "keywords": ["lm324", "324", "quad op-amp", "quad opamp"],
+        "color": (140, 40, 180),
+        "typical_bbox": [0.30, 0.30, 0.70, 0.70],
+        "desc": "LM324 Quad General-Purpose Op-Amp (14-pin DIP)"
+    },
+    {
+        "class": "LM393_Comparator",
+        "keywords": ["lm393", "393", "comparator", "lm339", "339"],
+        "color": (200, 100, 255),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "LM393 Dual Voltage Comparator, Open-Collector Output (8-pin DIP)"
+    },
+    {
+        "class": "TL071_JFET_OpAmp",
+        "keywords": ["tl071", "tl081", "tl072", "tl074", "jfet", "audio opamp"],
+        "color": (120, 50, 170),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "TL071/TL081 JFET-Input Op-Amp, High Slew Rate Audio Grade (8-pin DIP)"
+    },
+    {
+        "class": "LM386_Audio_Amplifier",
+        "keywords": ["lm386", "386", "audio amplifier", "audio amp"],
+        "color": (255, 100, 150),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "LM386 Low-Voltage Audio Power Amplifier 250mW-700mW (8-pin DIP)"
+    },
+    {
+        "class": "NE5532_HiFi_OpAmp",
+        "keywords": ["ne5532", "5532", "hifi", "hi-fi", "audio preamp"],
+        "color": (220, 80, 180),
+        "typical_bbox": [0.35, 0.35, 0.65, 0.65],
+        "desc": "NE5532 High-Performance Dual Op-Amp, Audio Grade (8-pin DIP)"
+    },
+    {
+        "class": "74HC_Logic_Gate_IC",
+        "keywords": ["74hc", "74ls", "logic gate", "nand", "nor", "74hc00", "74hc04", "74hc08", "74hc32", "74hc74"],
+        "color": (80, 200, 100),
+        "typical_bbox": [0.25, 0.30, 0.75, 0.70],
+        "desc": "74HC CMOS Logic Gate IC (NAND/NOR/AND/OR/XOR/Inverter, 14-pin DIP)"
+    },
+    {
+        "class": "SN74HC595_Shift_Register",
+        "keywords": ["74hc595", "595", "shift register", "serial to parallel"],
+        "color": (60, 180, 80),
+        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
+        "desc": "SN74HC595 8-bit Serial-In Parallel-Out Shift Register (16-pin DIP)"
+    },
+    {
+        "class": "CD4017_Decade_Counter",
+        "keywords": ["cd4017", "4017", "decade counter", "johnson counter", "led chaser"],
+        "color": (100, 220, 120),
+        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
+        "desc": "CD4017 Johnson Decade Counter/Divider with 10 Decoded Outputs (16-pin DIP)"
+    },
+    {
+        "class": "ULN2003_Darlington_Array",
+        "keywords": ["uln2003", "2003", "darlington", "stepper driver", "uln"],
+        "color": (50, 150, 255),
+        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
+        "desc": "ULN2003A 7-Channel Darlington Transistor Array 500mA/50V (16-pin DIP)"
+    },
+    {
+        "class": "MCP3008_SPI_ADC",
+        "keywords": ["mcp3008", "mcp3004", "adc", "analog to digital", "spi adc"],
+        "color": (0, 200, 180),
+        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
+        "desc": "MCP3008 8-Channel 10-bit SPI Analog-to-Digital Converter (16-pin DIP)"
+    },
+    {
+        "class": "PCF8574_I2C_GPIO_Expander",
+        "keywords": ["pcf8574", "8574", "i2c expander", "gpio expander", "io expander"],
+        "color": (0, 180, 160),
+        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
+        "desc": "PCF8574 8-bit I2C Remote GPIO Expander (16-pin DIP)"
+    },
+    {
+        "class": "DS18B20_Temp_Sensor",
+        "keywords": ["ds18b20", "18b20", "1-wire", "onewire", "dallas temperature"],
+        "color": (255, 180, 50),
+        "typical_bbox": [0.35, 0.30, 0.65, 0.70],
+        "desc": "DS18B20 1-Wire Digital Temperature Sensor -55C to +125C (TO-92 package)"
+    },
+    {
+        "class": "MAX232_Level_Converter",
+        "keywords": ["max232", "232", "rs232", "serial level", "ttl to rs232"],
+        "color": (100, 100, 200),
+        "typical_bbox": [0.25, 0.25, 0.75, 0.75],
+        "desc": "MAX232 RS-232 to TTL Level Converter with Charge Pump (16-pin DIP)"
     }
 ]
 
