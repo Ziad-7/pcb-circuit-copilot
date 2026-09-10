@@ -134,3 +134,17 @@ tests/test_query.py::test_query_invalid_input_short_question PASSED      [ 80%]
 tests/test_query.py::test_query_with_visual_component_detection PASSED   [100%]
 ================== 5 passed in 68s ===================
 ```
+
+---
+
+## 6. Application Screenshots
+
+### Multimodal Computer Vision Detection & Grounded Datasheet Analysis
+![PCB Copilot Analysis Results](docs/images/analysis_results.png)
+
+### Verified Datasheet Citations & Technical Directives
+![Datasheet Citations](docs/images/analysis_citations.png)
+
+### Initial Engineering Workbench Dashboard
+![Workbench Initial](docs/images/dashboard_initial.png)
+
