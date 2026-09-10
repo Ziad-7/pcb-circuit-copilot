@@ -1,0 +1,4 @@
+Resistor Testing: Resistance measurements taken with power OFF. Note that parallel components in the circuit will
+cause the multimeter to read a LOWER resistance than the nominal value. To confirm an open resistor, desolder one lead.
+ Blown Electrolytic Capacitor Signs: Bulging or domed aluminum top vent, brown electrolytic fluid crust around base, or high
+ESR causing excessive ripple on oscillos
