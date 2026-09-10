@@ -26,14 +26,14 @@ ping 127.0.0.1 -n 2 >nul
 echo [2/3] Starting FastAPI Backend (Port 8000)...
 pushd "%PROJECT_DIR%backend"
 set "PYTHONPATH=%CD%"
-start "FastAPI Backend" "%UVICORN_EXE%" app.main:app --host 127.0.0.1 --port 8000 --reload
+start "FastAPI Backend" cmd /k ""%UVICORN_EXE%" app.main:app --host 127.0.0.1 --port 8000 --reload"
 popd
 
 ping 127.0.0.1 -n 4 >nul
 
 echo [3/3] Starting Streamlit Frontend (Port 8501)...
 pushd "%PROJECT_DIR%frontend"
-start "Streamlit Frontend" "%STREAMLIT_EXE%" run app.py --server.port 8501
+start "Streamlit Frontend" cmd /k ""%STREAMLIT_EXE%" run app.py --server.port 8501"
 popd
 
 ping 127.0.0.1 -n 3 >nul
