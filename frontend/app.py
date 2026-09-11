@@ -244,90 +244,103 @@ st.markdown("""
 st.markdown("<div style='font-size:0.85rem; color:#94a3b8; margin-bottom:0.4rem; font-weight:500;'>QUICK TOPIC STARTERS:</div>", unsafe_allow_html=True)
 pill_c1, pill_c2, pill_c3, pill_c4 = st.columns(4)
 
-suggested_q = None
+if "user_query_input" not in st.session_state:
+    st.session_state["user_query_input"] = ""
+if "last_result" not in st.session_state:
+    st.session_state["last_result"] = None
+
+def select_topic(topic_text: str):
+    st.session_state["user_query_input"] = topic_text
+    st.session_state["trigger_analysis"] = True
+
 with pill_c1:
-    if st.button("💡 LED & Resistor Math"):
-        suggested_q = "How do I connect an LED to an Arduino pin, and what resistor value should I use?"
+    st.button("💡 LED & Resistor Math", on_click=select_topic, args=("How do I connect an LED to an Arduino pin, and what resistor value should I use?",), use_container_width=True)
 with pill_c2:
-    if st.button("🔌 Arduino 5V Regulator Setup"):
-        suggested_q = "How do I connect an LM7805 voltage regulator to power an Arduino safely?"
+    st.button("🔌 Arduino 5V Regulator Setup", on_click=select_topic, args=("How do I connect an LM7805 voltage regulator to power an Arduino safely?",), use_container_width=True)
 with pill_c3:
-    if st.button("🔄 Motors & Flyback Protection"):
-        suggested_q = "Why shouldn't I connect a DC motor directly to an Arduino pin, and what diode do I need?"
+    st.button("🔄 Motors & Flyback Protection", on_click=select_topic, args=("Why shouldn't I connect a DC motor directly to an Arduino pin, and what diode do I need?",), use_container_width=True)
 with pill_c4:
-    if st.button("⚠️ Safe Current & Voltage Limits"):
-        suggested_q = "What is the maximum safe current per Arduino Uno GPIO pin and how much can it supply in total?"
+    st.button("⚠️ Safe Current & Voltage Limits", on_click=select_topic, args=("What is the maximum safe current per Arduino Uno GPIO pin and how much can it supply in total?",), use_container_width=True)
 
 # Main Query Command Bar
 query_col, btn_col = st.columns([4, 1])
 
 with query_col:
-    user_query = st.text_input(
+    st.text_input(
         "Ask anything about wiring, pinouts, resistors, motors, or component specs:",
-        value=suggested_q if suggested_q else "",
+        key="user_query_input",
         placeholder="e.g. How do I wire this component? Which pin is ground? What resistor do I use?",
         label_visibility="collapsed"
     )
 
 with btn_col:
-    execute_search = st.button("Analyze Circuit", type="primary", use_container_width=True)
+    if st.button("Analyze Circuit", type="primary", use_container_width=True):
+        st.session_state["trigger_analysis"] = True
 
 # Handle Query Execution
+execute_search = st.session_state.pop("trigger_analysis", False)
+current_query = st.session_state.get("user_query_input", "").strip()
+
 if execute_search:
-    if not user_query or len(user_query.strip()) < 3:
+    if not current_query or len(current_query) < 3:
         st.warning("Please enter a technical question or select a topic above.")
     else:
         with st.spinner("Analyzing circuit photo & retrieving official datasheet specifications..."):
             try:
-                result = api_client.query(user_query, selected_image_name)
-
-                # Two-Column Presentation Layout
-                col_canvas, col_report = st.columns([1, 1.25])
-
-                # Left: Hardware Vision Canvas
-                with col_canvas:
-                    st.markdown("""
-                    <div class="glass-card">
-                      <div class="card-header-title">🔍 Visual Inspection Canvas</div>
-                    """, unsafe_allow_html=True)
-
-                    annotated_path = result.get("annotated_image_path")
-                    if annotated_path and os.path.exists(annotated_path):
-                        st.image(Image.open(annotated_path), caption="Computer Vision Detection & Bounding Boxes", use_container_width=True)
-                    elif selected_image_name:
-                        orig_p = os.path.join(sample_images_dir, selected_image_name)
-                        if os.path.exists(orig_p):
-                            st.image(Image.open(orig_p), caption="Input Circuit Board", use_container_width=True)
-
-                    comps = result.get("detected_components", [])
-                    if comps:
-                        st.markdown("<div style='margin-top:0.8rem; font-size:0.9rem; font-weight:600; color:#cbd5e1;'>Detected Components:</div>", unsafe_allow_html=True)
-                        for c in comps:
-                            st.markdown(f'<span class="comp-badge">{c["class_name"]} ({c["confidence"]*100:.0f}%)</span>', unsafe_allow_html=True)
-                            st.caption(f"• {c['description']}")
-                    else:
-                        st.info("No specific IC markers detected. Consulting general datasheet knowledge.")
-
-                    st.markdown("</div>", unsafe_allow_html=True)
-
-                # Right: Technical Lab Report
-                with col_report:
-                    st.markdown("""
-                    <div class="glass-card">
-                      <div class="card-header-title">📋 Engineering & Wiring Report</div>
-                    """, unsafe_allow_html=True)
-
-                    st.markdown(result["answer"])
-
-                    # Citations
-                    sources = result.get("sources", [])
-                    if sources:
-                        st.markdown("<div style='margin-top:1.2rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:0.8rem;'></div>", unsafe_allow_html=True)
-                        st.markdown("<div style='font-size:0.85rem; font-weight:600; color:#94a3b8; margin-bottom:0.4rem;'>VERIFIED DATASHEET CITATIONS:</div>", unsafe_allow_html=True)
-                        for s in sources:
-                            st.markdown(f'<span class="source-chip">📄 {s}</span>', unsafe_allow_html=True)
-
-                    st.markdown("</div>", unsafe_allow_html=True)
-
+                result = api_client.query(current_query, selected_image_name)
+                st.session_state["last_result"] = result
             except Exception as e:
                 st.error(f"Error communicating with backend: {e}")
+
+# Render Results
+if st.session_state.get("last_result"):
+    result = st.session_state["last_result"]
+
+    # Two-Column Presentation Layout
+    col_canvas, col_report = st.columns([1, 1.25])
+
+    # Left: Hardware Vision Canvas
+    with col_canvas:
+        st.markdown("""
+        <div class="glass-card">
+          <div class="card-header-title">🔍 Visual Inspection Canvas</div>
+        """, unsafe_allow_html=True)
+
+        annotated_path = result.get("annotated_image_path")
+        if annotated_path and os.path.exists(annotated_path):
+            st.image(Image.open(annotated_path), caption="Computer Vision Detection & Bounding Boxes", use_container_width=True)
+        elif selected_image_name:
+            orig_p = os.path.join(sample_images_dir, selected_image_name)
+            if os.path.exists(orig_p):
+                st.image(Image.open(orig_p), caption="Input Circuit Board", use_container_width=True)
+
+        comps = result.get("detected_components", [])
+        if comps:
+            st.markdown("<div style='margin-top:0.8rem; font-size:0.9rem; font-weight:600; color:#cbd5e1;'>Detected Components:</div>", unsafe_allow_html=True)
+            for c in comps:
+                st.markdown(f'<span class="comp-badge">{c["class_name"]} ({c["confidence"]*100:.0f}%)</span>', unsafe_allow_html=True)
+                st.caption(f"• {c['description']}")
+        else:
+            st.info("No specific IC markers detected. Consulting general datasheet knowledge.")
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # Right: Technical Lab Report
+    with col_report:
+        st.markdown("""
+        <div class="glass-card">
+          <div class="card-header-title">📋 Engineering & Wiring Report</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(result["answer"])
+
+        # Citations
+        sources = result.get("sources", [])
+        if sources:
+            st.markdown("<div style='margin-top:1.2rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:0.8rem;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-size:0.85rem; font-weight:600; color:#94a3b8; margin-bottom:0.4rem;'>VERIFIED DATASHEET CITATIONS:</div>", unsafe_allow_html=True)
+            for s in sources:
+                st.markdown(f'<span class="source-chip">📄 {s}</span>', unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+

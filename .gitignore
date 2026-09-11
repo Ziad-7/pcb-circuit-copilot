@@ -44,3 +44,7 @@ Thumbs.db
 # Private student notes
 *DEFENSE*
 *CHEAT_SHEET*
+
+# Generated Vision Artifacts
+data/annotated_samples/
+
