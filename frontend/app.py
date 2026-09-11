@@ -200,12 +200,7 @@ with st.sidebar:
     sample_images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "images"))
     sample_files = []
     if os.path.exists(sample_images_dir):
-        sample_files = [f for f in os.listdir(sample_images_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
-        # Prioritize 'arduino_uno_atmega328p.jpg' as the default selected sample
-        default_target = "arduino_uno_atmega328p.jpg"
-        if default_target in sample_files:
-            sample_files.remove(default_target)
-            sample_files.insert(0, default_target)
+        sample_files = sorted([f for f in os.listdir(sample_images_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))])
 
     selected_image_name = None
     uploaded_file = st.file_uploader("Upload Breadboard / PCB Photo", type=["jpg", "png", "jpeg"])
@@ -217,7 +212,7 @@ with st.sidebar:
             f.write(uploaded_file.getbuffer())
         st.image(uploaded_file, caption="Uploaded Circuit Image", use_container_width=True)
     elif sample_files:
-        chosen_sample = st.selectbox("Or Pick a Sample Circuit Board", sample_files, index=0)
+        chosen_sample = st.selectbox("Or Pick a Sample Circuit Board", sample_files)
         selected_image_name = chosen_sample
         img_path = os.path.join(sample_images_dir, chosen_sample)
         st.image(Image.open(img_path), caption=f"Selected: {chosen_sample}", use_container_width=True)

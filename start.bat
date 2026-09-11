@@ -56,7 +56,8 @@ set "PYTHONPATH=%CD%"
 start "FastAPI Backend" cmd /k ""%UVICORN_EXE%" app.main:app --host 127.0.0.1 --port 8000 --reload"
 popd
 
-ping 127.0.0.1 -n 4 >nul
+echo [*] Waiting for FastAPI to pre-warm vector store and become ready...
+"%PYTHON_EXE%" -c "import urllib.request, time; [print('[*] FastAPI Backend is ready!') or exit(0) for _ in range(30) if (time.sleep(1) or True) and (lambda: (urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=1).status == 200 if True else False))()]" 2>nul
 
 :: 5. Start Streamlit Frontend (Port 8501)
 echo [3/3] Starting Streamlit Frontend (Port 8501)...
