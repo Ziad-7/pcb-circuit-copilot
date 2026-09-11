@@ -1,13 +1,10 @@
 import os
+from typing import Optional
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "PCB Component & Circuit Troubleshooting Assistant"
     API_V1_STR: str = ""
-    
-    # Storage & Cache Directories (STRICT E: DRIVE)
-    HF_CACHE_DIR: str = "E:/hf_cache"
-    YOLO_CACHE_DIR: str = "E:/yolo_cache"
     
     # Embeddings & Vector Store
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"

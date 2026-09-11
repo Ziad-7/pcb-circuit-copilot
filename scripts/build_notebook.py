@@ -76,7 +76,7 @@ for p in raw_pages:
         })
 
 # 3. Embeddings & Vector Store
-embed_model = SentenceTransformer("all-MiniLM-L6-v2", cache_folder="E:/hf_cache")
+embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 chroma_client = chromadb.PersistentClient(path=VECTOR_DIR)
 collection = chroma_client.get_or_create_collection(
     name="pcb_datasheets",
@@ -233,7 +233,7 @@ from sentence_transformers import SentenceTransformer
 VECTOR_DIR = os.path.abspath(os.path.join("..", "backend", "data", "vector_store"))
 os.makedirs(VECTOR_DIR, exist_ok=True)
 
-embed_model = SentenceTransformer("all-MiniLM-L6-v2", cache_folder="E:/hf_cache")
+embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 
 chroma_client = chromadb.PersistentClient(path=VECTOR_DIR)
 collection = chroma_client.get_or_create_collection(

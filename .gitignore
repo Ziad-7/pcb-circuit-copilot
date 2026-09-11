@@ -48,3 +48,9 @@ Thumbs.db
 # Generated Vision Artifacts
 data/annotated_samples/
 
+# Media & Demo Videos
+*.mp4
+*.mkv
+*.mov
+*.avi
+

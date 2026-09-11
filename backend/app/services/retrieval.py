@@ -16,10 +16,7 @@ class RetrievalService:
 
     def _init_service(self):
         logger.info(f"Initializing RetrievalService with model: {settings.EMBEDDING_MODEL}")
-        self.embed_model = SentenceTransformer(
-            settings.EMBEDDING_MODEL,
-            cache_folder=settings.HF_CACHE_DIR
-        )
+        self.embed_model = SentenceTransformer(settings.EMBEDDING_MODEL)
         
         logger.info(f"Opening ChromaDB at: {settings.VECTOR_STORE_PATH}")
         self.chroma_client = chromadb.PersistentClient(path=settings.VECTOR_STORE_PATH)
