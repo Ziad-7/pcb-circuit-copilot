@@ -40,3 +40,7 @@ htmlcov/
 # Operating System Files
 .DS_Store
 Thumbs.db
+
+# Private student notes
+*DEFENSE*
+*CHEAT_SHEET*

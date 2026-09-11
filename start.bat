@@ -4,25 +4,52 @@ echo ========================================================
 echo        PCB Component and Circuit Copilot Launcher
 echo ========================================================
 
-set "HF_HOME=E:\hf_cache"
-set "OLLAMA_MODELS=E:\Ollama\models"
-set "YOLO_CACHE=E:\yolo_cache"
-
 set "PROJECT_DIR=%~dp0"
-set "UVICORN_EXE=%PROJECT_DIR%..\cs2-tactical-copilot\.venv\Scripts\uvicorn.exe"
-set "STREAMLIT_EXE=%PROJECT_DIR%..\cs2-tactical-copilot\.venv\Scripts\streamlit.exe"
-set "OLLAMA_EXE=E:\Ollama\ollama.exe"
 
-echo [1/3] Checking Ollama daemon...
-if exist "%OLLAMA_EXE%" (
-    start "Ollama Engine" /B "%OLLAMA_EXE%" serve
+:: 1. Detect Python / Virtual Environment
+set "VENV_BIN="
+if exist "%PROJECT_DIR%.venv\Scripts\python.exe" (
+    set "VENV_BIN=%PROJECT_DIR%.venv\Scripts"
+    echo [*] Detected local project virtual environment: .venv
+) else if exist "%PROJECT_DIR%..\cs2-tactical-copilot\.venv\Scripts\python.exe" (
+    set "VENV_BIN=%PROJECT_DIR%..\cs2-tactical-copilot\.venv\Scripts"
+    echo [*] Detected workspace virtual environment: cs2-tactical-copilot\.venv
 ) else (
-    echo Ollama binary not found at %OLLAMA_EXE%, trying system PATH...
+    echo [*] Using system PATH Python environment
+)
+
+if defined VENV_BIN (
+    set "UVICORN_EXE=%VENV_BIN%\uvicorn.exe"
+    set "STREAMLIT_EXE=%VENV_BIN%\streamlit.exe"
+    set "PYTHON_EXE=%VENV_BIN%\python.exe"
+) else (
+    set "UVICORN_EXE=uvicorn"
+    set "STREAMLIT_EXE=streamlit"
+    set "PYTHON_EXE=python"
+)
+
+:: 2. Optional Drive E: Cache Configuration
+if exist "E:\hf_cache" (
+    set "HF_HOME=E:\hf_cache"
+)
+if exist "E:\Ollama\models" (
+    set "OLLAMA_MODELS=E:\Ollama\models"
+)
+if exist "E:\yolo_cache" (
+    set "YOLO_CACHE=E:\yolo_cache"
+)
+
+:: 3. Start Ollama Engine
+echo [1/3] Starting Ollama Engine...
+if exist "E:\Ollama\ollama.exe" (
+    start "Ollama Engine" /B "E:\Ollama\ollama.exe" serve
+) else (
     start "Ollama Engine" /B ollama serve
 )
 
 ping 127.0.0.1 -n 2 >nul
 
+:: 4. Start FastAPI Backend (Port 8000)
 echo [2/3] Starting FastAPI Backend (Port 8000)...
 pushd "%PROJECT_DIR%backend"
 set "PYTHONPATH=%CD%"
@@ -31,6 +58,7 @@ popd
 
 ping 127.0.0.1 -n 4 >nul
 
+:: 5. Start Streamlit Frontend (Port 8501)
 echo [3/3] Starting Streamlit Frontend (Port 8501)...
 pushd "%PROJECT_DIR%frontend"
 start "Streamlit Frontend" cmd /k ""%STREAMLIT_EXE%" run app.py --server.port 8501"
