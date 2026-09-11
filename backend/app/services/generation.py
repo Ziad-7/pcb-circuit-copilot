@@ -9,9 +9,10 @@ class GenerationService:
         self.model = settings.OLLAMA_MODEL
 
     def check_health(self) -> bool:
+        import urllib.request
         try:
-            self.client.list()
-            return True
+            with urllib.request.urlopen(f"{settings.OLLAMA_BASE_URL}", timeout=1.5) as r:
+                return r.status == 200
         except Exception as e:
             logger.warning(f"Ollama health check failed: {e}")
             return False
