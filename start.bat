@@ -28,7 +28,7 @@ if defined VENV_BIN (
     set "PYTHON_EXE=python"
 )
 
-:: 2. Optional Drive E: Cache Configuration
+:: 2. Optional Drive E: Cache Configuration (Falls back automatically if E: does not exist)
 if exist "E:\hf_cache" (
     set "HF_HOME=E:\hf_cache"
 )
@@ -56,8 +56,8 @@ set "PYTHONPATH=%CD%"
 start "FastAPI Backend" cmd /k ""%UVICORN_EXE%" app.main:app --host 127.0.0.1 --port 8000 --reload"
 popd
 
-echo [*] Waiting for FastAPI to pre-warm vector store and become ready...
-"%PYTHON_EXE%" -c "import urllib.request, time; [print('[*] FastAPI Backend is ready!') or exit(0) for _ in range(30) if (time.sleep(1) or True) and (lambda: (urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=1).status == 200 if True else False))()]" 2>nul
+:: Wait for FastAPI to finish pre-warming ChromaDB before launching the UI
+"%PYTHON_EXE%" "%PROJECT_DIR%backend\wait_for_backend.py"
 
 :: 5. Start Streamlit Frontend (Port 8501)
 echo [3/3] Starting Streamlit Frontend (Port 8501)...
@@ -65,7 +65,7 @@ pushd "%PROJECT_DIR%frontend"
 start "Streamlit Frontend" cmd /k ""%STREAMLIT_EXE%" run app.py --server.port 8501"
 popd
 
-ping 127.0.0.1 -n 3 >nul
+ping 127.0.0.1 -n 2 >nul
 
 echo.
 echo Launching Web Browser at http://localhost:8501 ...
